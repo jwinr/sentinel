@@ -1,0 +1,9 @@
+.bundle
+.rspec
+.vscode
+log/
+tmp/
+*.log
+Gemfile.lock
+sorbet/rbi/
+**/.DS_Store
