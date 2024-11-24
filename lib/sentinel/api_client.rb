@@ -9,7 +9,12 @@ module Sentinel
     end
 
     def fetch_api_call_logs
-      # Placeholder for fetching API call logs from Stripe
+      # Mock data for API call logs
+      [
+        { method: 'POST', endpoint: '/v1/charges', idempotency_key: '12345' },
+        { method: 'POST', endpoint: '/v1/customers', idempotency_key: nil },
+        { method: 'GET', endpoint: '/v1/products', idempotency_key: nil }
+      ]
     end
 
     def fetch_webhook_endpoints
