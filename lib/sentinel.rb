@@ -1,36 +1,48 @@
 # lib/sentinel.rb
-require_relative "sentinel/compliance_checker"
-require_relative "sentinel/security_assessment"
-require_relative "sentinel/performance_monitor"
-require_relative "sentinel/feedback_system"
-require_relative "sentinel/report_generator"
-require_relative "sentinel/api_client"
+require_relative 'sentinel/core/feedback_system'
+require_relative 'sentinel/core/compliance_checker'
+require_relative 'sentinel/core/security_assessment'
+require_relative 'sentinel/core/performance_monitor'
+require_relative 'sentinel/core/language_detector'
+require_relative 'sentinel/languages/ruby_adapter'
+require_relative 'sentinel/languages/python_adapter'
+require_relative 'sentinel/languages/php_adapter'
+require_relative 'sentinel/languages/nodejs_adapter'
+require_relative 'sentinel/languages/java_adapter'
+require_relative 'sentinel/languages/go_adapter'
+require_relative 'sentinel/languages/dotnet_adapter'
 
 module Sentinel
   class Main
-    def initialize(api_key)
-      @api_client = ApiClient.new(api_key)
-      @compliance_checker = ComplianceChecker.new(@api_client)
-      @security_assessment = SecurityAssessment.new(@api_client)
-      @performance_monitor = PerformanceMonitor.new(@api_client)
-      @feedback_system = FeedbackSystem.new
+    def initialize
+      @feedback_system = Core::FeedbackSystem.new
+      language = Core::LanguageDetector.detect
+      raise 'Unsupported language or no language detected' unless language
+
+      @adapter = case language
+                 when :ruby
+                   Languages::RubyAdapter.new(@feedback_system)
+                 when :python
+                   Languages::PythonAdapter.new(@feedback_system)
+                 when :php
+                   Languages::PhpAdapter.new(@feedback_system)
+                 when :nodejs
+                   Languages::NodejsAdapter.new(@feedback_system)
+                 when :java
+                   Languages::JavaAdapter.new(@feedback_system)
+                 when :go
+                   Languages::GoAdapter.new(@feedback_system)
+                 when :dotnet
+                   Languages::DotnetAdapter.new(@feedback_system)
+                 end
     end
 
-    def run_audit
-      # Placeholder for running each module's checks and collecting feedback
-      @compliance_checker.check_idempotency
-      @compliance_checker.check_api_key_security
-      @compliance_checker.check_error_handling
+    def run
+      Core::ComplianceChecker.new(@adapter).run
+      Core::SecurityAssessment.new(@adapter).run
+      Core::PerformanceMonitor.new(@adapter).run
 
-      @security_assessment.check_webhook_security
-      @security_assessment.check_sensitive_data_exposure
-
-      @performance_monitor.analyze_api_usage
-      @performance_monitor.measure_latency
-
-      # Placeholder for aggregating and generating a report
-      feedback = @feedback_system.aggregate_feedback
-      ReportGenerator.new(feedback).generate_json
+      puts @feedback_system.aggregate_feedback
     end
   end
 end

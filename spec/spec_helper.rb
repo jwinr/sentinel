@@ -13,6 +13,9 @@
 # it.
 #
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
+# Require all files in the support directory
+Dir[File.join(File.dirname(__FILE__), 'support/**/*.rb')].sort.each { |file| require file }
+
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
